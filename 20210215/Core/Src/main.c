@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include <stdio.h>
 #include <string.h>
 /* USER CODE END Includes */
 
@@ -53,6 +54,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
+int __io_putchar(int ch);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -91,13 +93,11 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_StatusTypeDef ret = HAL_ERROR;
   uint8_t string[] = "Hello NUCLEO-F411RE\r\n";
-  ret = HAL_UART_Transmit(&huart2, string, (uint16_t)strlen((const char*)string), 100);
-  if(ret != HAL_OK)
-  {
-	  // error
-  }
+  printf("=================================================\r\n");
+  printf("%s", string);
+  printf("Compiled %s, %s\r\n", __DATE__, __TIME__);
+  printf("=================================================\r\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -198,6 +198,25 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+int __io_putchar(int ch)
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART2 and Loop until the end of transmission */
+	uint8_t tx = ch;
+	HAL_StatusTypeDef ret = HAL_ERROR;
+
+	ret = HAL_UART_Transmit(&huart2, &tx, 1, 1000);
+	if(ret == HAL_OK)
+	{
+		return ch;
+	}
+	return -1;
+}
 /* USER CODE END 4 */
 
 /**
